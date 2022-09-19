@@ -43,3 +43,34 @@ def new_job(venue_id):
     db.session.add(job)
     db.session.commit()
     return jsonify(job_schema.dump(job))
+
+
+# Delete a job
+@jobs.route("/<int:job_id>", methods=["DELETE"])
+def delete_job(job_id):
+    job = Job.query.get(job_id)
+    if not job:
+        return abort(400, description="Job does not exist")
+
+    db.session.delete(job)
+    db.session.commit()
+
+    return jsonify(job_schema.dump(job))
+
+
+# Update a job
+@jobs.route("<int:job_id>", methods=["PUT"])
+def update_job(job_id):
+    job = Job.query.get(job_id)
+    if not job:
+        return abort(400, description="Job does not exist")
+
+    job_fields = job_schema.load(request.json)
+    job.description = job_fields.get("description", job.description)
+    job.date = job_fields.get("date", job.date)
+    job.start_time = job_fields.get("start_time", job.start_time)
+    job.finish_time = job_fields.get("finish_time", job.finish_time)
+    job.pay_rate = job_fields.get("pay_rate", job.pay_rate)
+
+    db.session.commit()
+    return jsonify(job_schema.dump(job))
