@@ -5,7 +5,8 @@ from marshmallow import fields
 class ApplicationSchema(ma.Schema):
     class Meta:
         ordered = True
-        fields = ("id", "job", "barista", "status")
+        fields = ("id", "job_id", "job", "barista_id", "barista", "status",)
+        load_only=("job_id", "barista_id")
 
     job = fields.Nested("JobSchema")
     barista = fields.Nested("BaristaSchema", exclude=("username", "password", "join_date"))

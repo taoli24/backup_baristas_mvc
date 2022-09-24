@@ -109,4 +109,18 @@ def seed_db():
     db.session.add(job2)
     db.session.commit()
 
+    application1 = Application(
+        job=job1,
+        barista=barista1,
+    )
+
+    application2 = Application(
+        job=job1,
+        barista=barista2,
+    )
+
+    db.session.add(application1)
+    db.session.add(application2)
+    db.session.commit()
+
     print("table seeded")

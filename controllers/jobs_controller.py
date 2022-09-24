@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from main import db
-from models import Job, Venue, Application
-from schemas import jobs_schema, job_schema, application_schema
+from models import Job, Venue, Application, Review, Barista
+from schemas import jobs_schema, job_schema, application_schema, review_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .helper_functions import authenticate_role_only
 
@@ -153,3 +153,43 @@ def approve_applicant(job_id):
 
     db.session.commit()
     return jsonify(job_schema.dump(job))
+
+
+# Review job performed by baristas
+@jobs.route("/<int:job_id>/review", methods=["POST"])
+@jwt_required()
+@authenticate_role_only(role="manager")
+def review_job(job_id):
+    job = Job.query.get(job_id)
+    print(job)
+    if not job:
+        return abort(400, description="Job does not exist.")
+
+    if job.status != "fulfilled":
+        return abort(401, description="You can only leave review for fulfilled job.")
+
+    job_venue = Venue.query.get(job.venue_id)
+
+    if str(job_venue.manager_id) != get_jwt_identity().replace("manager", ""):
+        return abort(401, description="You do not have permission to review this job.")
+
+    review_fields = review_schema.load(request.json)
+
+    new_review = Review(
+        comments=review_fields["comments"],
+        rating=review_fields["rating"],
+        barista_id=job.barista_id,
+        job_id=job_id
+    )
+
+    db.session.add(new_review)
+
+    # Access barista model and update rating
+    batista = Barista.query.get(job.barista_id)
+    batista.number_ratings = batista.number_ratings + 1
+    batista.rating = (batista.rating * (batista.number_ratings-1) + review_fields["rating"])/batista.number_ratings
+
+    db.session.commit()
+
+    return jsonify(review_schema.dump(new_review))
+
