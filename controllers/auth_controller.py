@@ -2,8 +2,8 @@ from flask_jwt_extended import create_access_token
 from main import db, bcrypt
 from flask import Blueprint, request, abort, jsonify
 from datetime import timedelta
-from schemas import barista_schema
-from models import Barista
+from schemas import barista_schema, manager_schema
+from models import Barista, Manager
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -50,4 +50,48 @@ def register_user():
     expire = timedelta(days=1)
     token = create_access_token(identity=f"user{new_user.id}", expires_delta=expire)
 
-    return jsonify({"username":new_user.username, "access_token": token})
+    return jsonify({"username": new_user.username, "access_token": token})
+
+
+# Manager login
+@auth.route("/manager/login", methods=["POST"])
+def manager_login():
+    manager_fields = manager_schema.load(request.json)
+    manager = Manager.query.filter_by(username=manager_fields["username"]).first()
+    # check if user exist and password correct
+    if not manager or not bcrypt.check_password_hash(manager.password, manager_fields["password"]):
+        return abort(401, description="Invalid username or password.")
+
+    expiry = timedelta(days=1)
+    token = create_access_token(identity=f"manager{manager.id}", expires_delta=expiry)
+
+    return jsonify({"username": manager.username, "access_token": token})
+
+
+# Register new manager
+@auth.route("/manager/register", methods=["POST"])
+def register_manager():
+    manager_fields = manager_schema.load(request.json)
+    # Check if manager already existed in the database
+    manager = Manager.query.filter_by(username=manager_fields["username"]).first()
+
+    # Return error if username already exist
+    if manager:
+        return abort(400, description="Manager with the same username already exist in the database.")
+
+    new_manager = Manager(
+        username=manager_fields["username"],
+        password=bcrypt.generate_password_hash(manager_fields["password"]).decode("utf-8"),
+        first_name=manager_fields["first_name"],
+        last_name=manager_fields["last_name"],
+        email=manager_fields["email"],
+        contact_number=manager_fields["contact_number"]
+    )
+
+    db.session.add(new_manager)
+    db.session.commit()
+
+    expiry = timedelta(days=1)
+    token = create_access_token(identity=f"manager{new_manager.id}", expires_delta=expiry)
+
+    return jsonify({"username": new_manager.username, "access_token": token})

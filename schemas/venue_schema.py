@@ -1,9 +1,14 @@
 from main import ma
+from marshmallow import fields
 
 
 class VenueSchema(ma.Schema):
     class Meta:
-        fields = ("id", "venue_name", "address", "email", "abn", "contact_number", "manager_id")
+        ordered = True
+        fields = ("id", "venue_name", "address", "email", "abn", "contact_number", "manager", "jobs")
+
+    manager = fields.Nested("ManagerSchema", exclude=("username", "password",))
+    jobs = fields.List(fields.Nested("JobSchema", exclude=("venue",)))
 
 
 venue_schema = VenueSchema()
