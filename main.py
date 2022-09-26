@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+from marshmallow.exceptions import ValidationError
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -20,6 +21,13 @@ def create_app():
     ma.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+
+    # Register error handler with app scope
+    @app.errorhandler(ValidationError)
+    def register_validation_error(error):
+        response = jsonify(error.messages)
+        response.status_code = 400
+        return response
 
     # register blue print
     from commands import db_commands

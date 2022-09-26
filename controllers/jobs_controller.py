@@ -4,6 +4,7 @@ from models import Job, Venue, Application, Review, Barista
 from schemas import jobs_schema, job_schema, application_schema, review_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .helper_functions import authenticate_role_only
+from marshmallow.exceptions import ValidationError
 
 jobs = Blueprint("jobs", __name__, url_prefix="/jobs")
 
@@ -51,7 +52,7 @@ def new_job(venue_id):
 
     db.session.add(job)
     db.session.commit()
-    return jsonify(job_schema.dump(job))
+    return jsonify(job_schema.dump(job)), 201
 
 
 # Delete a job
@@ -192,4 +193,6 @@ def review_job(job_id):
     db.session.commit()
 
     return jsonify(review_schema.dump(new_review))
+
+
 

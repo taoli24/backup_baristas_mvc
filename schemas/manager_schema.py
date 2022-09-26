@@ -1,5 +1,5 @@
 from main import ma
-from marshmallow.validate import Length
+from marshmallow.validate import Length, Email
 
 
 class ManagerSchema(ma.Schema):
@@ -9,7 +9,12 @@ class ManagerSchema(ma.Schema):
         load_only = ("username", "password", "join_date")
 
     # validate password
-    password = ma.String(validate=Length(min=8))
+    username = ma.String(required=True)
+    password = ma.String(required=True, validate=Length(min=8))
+    first_name = ma.String(required=True)
+    last_name = ma.String(required=True)
+    email = ma.String(required=True, validate=Email())
+    contact_number = ma.String(required=True)
 
 
 manager_schema = ManagerSchema()
