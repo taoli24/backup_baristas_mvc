@@ -2,6 +2,7 @@ from main import ma
 from marshmallow import fields
 
 
+# noinspection PyTypeChecker
 class JobSchema(ma.Schema):
     class Meta:
         ordered = True
@@ -20,4 +21,3 @@ class JobSchema(ma.Schema):
 
 job_schema = JobSchema()
 jobs_schema = JobSchema(many=True)
-

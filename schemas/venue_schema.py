@@ -3,6 +3,7 @@ from marshmallow import fields
 from marshmallow.validate import Email
 
 
+# noinspection PyTypeChecker
 class VenueSchema(ma.Schema):
     class Meta:
         ordered = True

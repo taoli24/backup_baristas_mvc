@@ -9,7 +9,7 @@ class ReviewSchema(ma.Schema):
         ordered = True
         fields = ("id", "comments", "rating", "barista", "job")
 
-    barista = fields.Nested("BaristaSchema", exclude=("username", "password"))
+    barista = fields.Nested("BaristaSchema", exclude=("username", "password", "reviews"))
     job = fields.Nested("JobSchema", exclude=("barista",))
     rating = fields.Int(required=True, strict=True, validate=OneOf(choices=(1, 2, 3, 4, 5)))
     comments = fields.Str(required=True, validate=Length(max=200))

@@ -2,6 +2,7 @@ from main import ma
 from marshmallow import fields
 
 
+# noinspection PyTypeChecker
 class ApplicationSchema(ma.Schema):
     class Meta:
         ordered = True
@@ -12,6 +13,7 @@ class ApplicationSchema(ma.Schema):
     barista = fields.Nested("BaristaSchema", exclude=("username", "password", "join_date"))
 
 
+# noinspection PyTypeChecker
 class UserApplicationSchema(ApplicationSchema):
     # Overwrite job class attribute to exclude other applicants' information
     job = fields.Nested("JobSchema", exclude=("barista",))

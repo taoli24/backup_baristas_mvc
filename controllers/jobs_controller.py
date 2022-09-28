@@ -174,6 +174,11 @@ def review_job(job_id):
     if str(job_venue.manager_id) != get_jwt_identity().replace("manager", ""):
         return abort(401, description="You do not have permission to review this job.")
 
+    # check if a job has been reviewed
+    review = Review.query.filter_by(job_id=job_id).first()
+    if review:
+        return abort(401, description="Review has already been left for this job.")
+
     review_fields = review_schema.load(request.json)
 
     new_review = Review(

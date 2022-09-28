@@ -11,7 +11,7 @@ auth = Blueprint("auth", __name__, url_prefix="/auth")
 # user login - user is the worker
 @auth.route("/login", methods=["POST"])
 def user_login():
-    user_fields = barista_schema.load(request.json)
+    user_fields = barista_schema.load(request.json, partial=True)
     user = Barista.query.filter_by(username=user_fields["username"]).first()
     # check if user exist and password correct
     if not user or not bcrypt.check_password_hash(user.password, user_fields["password"]):
@@ -56,7 +56,7 @@ def register_user():
 # Manager login
 @auth.route("/manager/login", methods=["POST"])
 def manager_login():
-    manager_fields = manager_schema.load(request.json)
+    manager_fields = manager_schema.load(request.json, partial=True)
     manager = Manager.query.filter_by(username=manager_fields["username"]).first()
     # check if user exist and password correct
     if not manager or not bcrypt.check_password_hash(manager.password, manager_fields["password"]):
