@@ -68,6 +68,7 @@ def seed_db():
     venue1 = Venue(
         venue_name="cafe1",
         address="12 Connell Way Belconnen ACT 2617",
+        city="Canberra",
         email="info@cafe1.com",
         abn="180180180",
         contact_number="0261235678",
@@ -77,6 +78,7 @@ def seed_db():
     venue2 = Venue(
         venue_name="cafe2",
         address="112 Benjamin Way Bruce ACT 2617",
+        city="Sydney",
         email="info@cafe2.com",
         abn="191191191",
         contact_number="0298765432",
@@ -97,7 +99,7 @@ def seed_db():
     )
 
     job2 = Job(
-        description="Barista required for busy cafe on Sunday",
+        description="Barista wanted Saturday",
         date=date(2022, 9, 25),
         start_time=time(hour=8),
         finish_time=time(hour=16),

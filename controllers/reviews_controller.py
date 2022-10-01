@@ -44,7 +44,14 @@ def modify_review(review_id):
     else:
         review_field = review_schema.load(request.json, partial=True)
         review[0].comments = review_field.get("comments", review[0].comments)
-        review[0].rating = review_field.get("rating", review[0].rating)
+        if review_field["rating"] is not None:
+            # Update barista rating in the barista table
+            diff = review_field["rating"] - review[0].rating
+            barista = Barista.query.get(review[0].barista_id)
+            barista.rating = (barista.rating * barista.number_ratings + diff)/barista.number_ratings
+
+            # Update rating of the review
+            review[0].rating = review_field.get("rating", review[0].rating)
         db.session.commit()
 
         return jsonify(review_schema.dump(review[0]))

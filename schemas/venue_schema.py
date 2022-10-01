@@ -7,7 +7,7 @@ from marshmallow.validate import Email
 class VenueSchema(ma.Schema):
     class Meta:
         ordered = True
-        fields = ("id", "venue_name", "address", "email", "abn", "contact_number", "manager", "jobs")
+        fields = ("id", "venue_name", "address", "city", "email", "abn", "contact_number", "manager", "jobs")
 
     # Nested schemas
     manager = fields.Nested("ManagerSchema", exclude=("username", "password",))
@@ -16,6 +16,7 @@ class VenueSchema(ma.Schema):
     # Validation of fields
     venue_name = ma.String(required=True)
     address = ma.String(required=True)
+    city = ma.String(required=True)
     email = ma.String(required=True, validate=Email())
     abn = ma.String(required=True),
     contact_number = ma.String(required=True)

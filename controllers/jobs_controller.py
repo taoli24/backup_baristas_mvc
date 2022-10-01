@@ -4,15 +4,26 @@ from models import Job, Venue, Application, Review, Barista
 from schemas import jobs_schema, job_schema, application_schema, review_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .helper_functions import authenticate_role_only
-from marshmallow.exceptions import ValidationError
 
 jobs = Blueprint("jobs", __name__, url_prefix="/jobs")
 
 
-# get all available jobs
+# get all available jobs/optional search
+# currently jobs can be filtered by venue location(city) or min_rate
 @jobs.route("/", methods=["GET"])
 def get_all_available_jobs():
-    job_list = Job.query.filter_by(status="To be fulfilled").all()
+    if request.query_string:
+        job_list = db.session.query(Job, Venue) \
+            .join(Venue, Job.venue_id == Venue.id) \
+            .filter(Job.pay_rate > request.args.get("min_rate", 0),
+                    Job.status == "To be fulfilled",
+                    Venue.city == request.args.get("location").capitalize()).all()[0] \
+            if request.args.get("location") else \
+            Job.query.filter(Job.pay_rate > request.args.get("min_rate", 0),
+                             Job.status == "To be fulfilled")
+
+    else:
+        job_list = Job.query.filter_by(status="To be fulfilled").all()
     return jsonify(jobs_schema.dump(job_list))
 
 
@@ -193,11 +204,8 @@ def review_job(job_id):
     # Access barista model and update rating
     batista = Barista.query.get(job.barista_id)
     batista.number_ratings = batista.number_ratings + 1
-    batista.rating = (batista.rating * (batista.number_ratings-1) + review_fields["rating"])/batista.number_ratings
+    batista.rating = (batista.rating * (batista.number_ratings - 1) + review_fields["rating"]) / batista.number_ratings
 
     db.session.commit()
 
     return jsonify(review_schema.dump(new_review))
-
-
-
