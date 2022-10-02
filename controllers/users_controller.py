@@ -15,13 +15,16 @@ users = Blueprint("users", __name__, url_prefix="/users")
 def get_update_user():
     user = Barista.query.get(get_jwt_identity().replace("user", ""))
 
+    # check if user exist, if not return error message
     if not user:
         return {"ERROR": "User does not exist."}, 400
 
     if request.method == "GET":
+        # Return user information
         return jsonify(barista_schema.dump(user))
 
     else:
+        # "PUT" request, update barista information
         barista_fields = barista_schema.load(request.json, partial=True)
 
         user.first_name = barista_fields.get("first_name", user.first_name)

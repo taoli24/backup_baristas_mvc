@@ -14,6 +14,7 @@ applications = Blueprint("applications", __name__, url_prefix="/applications")
 @authenticate_role_only(role="manager")
 def get_applications():
     # Get all applications managed by the manager
+    # Job model and Venue model are joined then filtered using manager_id
     jobs = db.session.query(Application, Job, Venue) \
         .join(Job, Application.job_id == Job.id) \
         .join(Venue, Job.venue_id == Venue.id) \
@@ -40,15 +41,19 @@ def get_user_application():
 def delete_application(application_id):
     user_application = Application.query.get(application_id)
 
+    # Check if application exist
     if not user_application:
         return abort(400, description="Application does not exist.")
 
+    # Check if application is associated with the barista signed in
     if str(user_application.barista_id) != get_jwt_identity().replace("user", ""):
         return abort(401, description="You don't have permission to delete this application.")
 
+    # Check if application status is still pending
     if user_application.status != "pending":
         return abort(401, description="Only applications with pending status can be withdrawn.")
 
+    # Keep session open until object is serialized to JSON format
     with set_no_expire():
         db.session.delete(user_application)
         db.session.commit()

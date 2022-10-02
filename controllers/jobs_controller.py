@@ -8,10 +8,11 @@ from .helper_functions import authenticate_role_only
 jobs = Blueprint("jobs", __name__, url_prefix="/jobs")
 
 
-# get all available jobs/optional search
-# currently jobs can be filtered by venue location(city) or min_rate
+# Get all available jobs/optional search
+# Currently jobs can be filtered by venue location(city) or min_rate
 @jobs.route("/", methods=["GET"])
 def get_all_available_jobs():
+    # Perform filtering if query_string is not None
     if request.query_string:
         job_list = db.session.query(Job, Venue) \
             .join(Venue, Job.venue_id == Venue.id) \
@@ -23,6 +24,7 @@ def get_all_available_jobs():
                              Job.status == "To be fulfilled")
 
     else:
+        # If no query_string, all available jobs are returned
         job_list = Job.query.filter_by(status="To be fulfilled").all()
     return jsonify(jobs_schema.dump(job[0] for job in job_list))
 
@@ -31,6 +33,7 @@ def get_all_available_jobs():
 @jobs.route("/<int:venue_id>", methods=["GET"])
 def get_all_available_jobs_per_venue(venue_id):
     venue = Venue.query.get(venue_id)
+    # Check if venue exist
     if not venue:
         return abort(400, description="venue does not exist")
 
@@ -44,6 +47,7 @@ def get_all_available_jobs_per_venue(venue_id):
 @authenticate_role_only(role="manager")
 def new_job(venue_id):
     venue = Venue.query.get(venue_id)
+    # Check if venue exist
     if not venue:
         return abort(400, description="Venue does not exist")
 
@@ -51,6 +55,7 @@ def new_job(venue_id):
     if not str(venue.manager_id) == get_jwt_identity().replace("manager", ""):
         return abort(401, description="You don't have permission to post for this venue.")
 
+    # Create new Job object
     job_fields = job_schema.load(request.json)
     job = Job(
         description=job_fields["description"],
@@ -72,6 +77,7 @@ def new_job(venue_id):
 @authenticate_role_only(role="manager")
 def delete_job(job_id):
     job = Job.query.get(job_id)
+    # Check if job exist
     if not job:
         return abort(400, description="Job does not exist")
 
@@ -102,6 +108,7 @@ def update_job(job_id):
     if not str(job_venue.manager_id) == get_jwt_identity().replace("manager", ""):
         return abort(401, description="You don't have permission to update this job.")
 
+    # Update job object
     job_fields = job_schema.load(request.json, partial=True)
     job.description = job_fields.get("description", job.description)
     job.date = job_fields.get("date", job.date)
@@ -119,9 +126,11 @@ def update_job(job_id):
 @authenticate_role_only(role="user")
 def apply_job(job_id):
     job = Job.query.get(job_id)
+    # Check if job exist or status is fulfilled
     if not job or job.status == "fulfilled":
         return abort(400, description="The job does not exist or has been fulfilled.")
 
+    # Create new application object
     application = Application(
         job_id=job_id,
         barista_id=get_jwt_identity().replace("user", "")
@@ -173,15 +182,17 @@ def approve_applicant(job_id):
 @authenticate_role_only(role="manager")
 def review_job(job_id):
     job = Job.query.get(job_id)
-    print(job)
+    # Check if job exist
     if not job:
         return abort(400, description="Job does not exist.")
 
+    # return error if job has not been fulfilled
     if job.status != "fulfilled":
         return abort(401, description="You can only leave review for fulfilled job.")
 
     job_venue = Venue.query.get(job.venue_id)
 
+    # Check if job is managed by current manager
     if str(job_venue.manager_id) != get_jwt_identity().replace("manager", ""):
         return abort(401, description="You do not have permission to review this job.")
 
@@ -192,6 +203,7 @@ def review_job(job_id):
 
     review_fields = review_schema.load(request.json)
 
+    # Create new Review object
     new_review = Review(
         comments=review_fields["comments"],
         rating=review_fields["rating"],

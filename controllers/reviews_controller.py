@@ -16,6 +16,7 @@ reviews = Blueprint("reviews", __name__, url_prefix="/reviews")
 def get_barista_review(barista_id):
     barista = Barista.query.get(barista_id)
 
+    # Check if barista exist
     if not barista:
         return {"Error", "Barista does not exist in the database."}, 400
 

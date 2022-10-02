@@ -17,6 +17,7 @@ def user_login():
     if not user or not bcrypt.check_password_hash(user.password, user_fields["password"]):
         return abort(401, description="Invalid username or password.")
 
+    # create access token, set expiry to 1 day
     expiry = timedelta(days=1)
     token = create_access_token(identity=f"user{user.id}", expires_delta=expiry)
 
@@ -29,6 +30,7 @@ def register_user():
     user_fields = barista_schema.load(request.json)
 
     # Check if username exist
+    # if username already exist, abort operation
     if Barista.query.filter_by(username=user_fields["username"]).first():
         return abort(400, description="Username already exist in the database.")
 
@@ -62,6 +64,7 @@ def manager_login():
     if not manager or not bcrypt.check_password_hash(manager.password, manager_fields["password"]):
         return abort(401, description="Invalid username or password.")
 
+    # Create token expire in 24 hours
     expiry = timedelta(days=1)
     token = create_access_token(identity=f"manager{manager.id}", expires_delta=expiry)
 
@@ -91,6 +94,7 @@ def register_manager():
     db.session.add(new_manager)
     db.session.commit()
 
+    # Create token expire in 24 hours
     expiry = timedelta(days=1)
     token = create_access_token(identity=f"manager{new_manager.id}", expires_delta=expiry)
 

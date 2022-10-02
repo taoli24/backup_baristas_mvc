@@ -19,6 +19,7 @@ def add_venue():
     if venue:
         return abort(400, description="Venue with the same name already exist.")
 
+    # Create new venue object
     new_venue = Venue(
         venue_name=venue_fields["venue_name"],
         address=venue_fields["address"],
@@ -53,9 +54,11 @@ def get_venues():
 def update_venue(venue_id):
     venue = Venue.query.get(venue_id)
 
+    # Check if venue exist
     if not venue:
         return abort(400, description="Venue does not exist.")
 
+    # Check if venue is managed by current manager with associated token
     if str(venue.manager_id) != get_jwt_identity().replace("manager", ""):
         return abort(401, description="You do not have permission to update this venue.")
 
@@ -79,9 +82,11 @@ def update_venue(venue_id):
 def delete_venue(venue_id):
     venue = Venue.query.get(venue_id)
 
+    # Check if venue exist
     if not venue:
         return abort(400, description="Venue does not exist.")
 
+    # Check if venue is managed by current manager
     if str(venue.manager_id) != get_jwt_identity().replace("manager", ""):
         return abort(401, description="You do not have permission to update this venue.")
 
