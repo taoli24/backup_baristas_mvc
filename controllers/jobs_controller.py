@@ -20,13 +20,16 @@ def get_all_available_jobs():
                     Job.status == "To be fulfilled",
                     Venue.city == request.args.get("location").capitalize()).all() \
             if request.args.get("location") else \
-            Job.query.filter(Job.pay_rate >= request.args.get("min_rate", 0),
-                             Job.status == "To be fulfilled")
+            db.session.query(Job, Venue) \
+                .join(Venue, Job.venue_id == Venue.id) \
+                .filter(Job.pay_rate >= request.args.get("min_rate", 0),
+                        Job.status == "To be fulfilled").all()
+        return jsonify(jobs_schema.dump(job[0] for job in job_list))
 
     else:
         # If no query_string, all available jobs are returned
         job_list = Job.query.filter_by(status="To be fulfilled").all()
-    return jsonify(jobs_schema.dump(job[0] for job in job_list))
+        return jsonify(jobs_schema.dump(job_list))
 
 
 # get all available jobs of a venue
