@@ -50,7 +50,7 @@ def register_user():
     expire = timedelta(days=1)
     token = create_access_token(identity=f"user{new_user.id}", expires_delta=expire)
 
-    return jsonify({"username": new_user.username, "access_token": token})
+    return jsonify({"username": new_user.username, "access_token": token}), 201
 
 
 # Manager login
@@ -94,4 +94,4 @@ def register_manager():
     expiry = timedelta(days=1)
     token = create_access_token(identity=f"manager{new_manager.id}", expires_delta=expiry)
 
-    return jsonify({"username": new_manager.username, "access_token": token})
+    return jsonify({"username": new_manager.username, "access_token": token}), 201

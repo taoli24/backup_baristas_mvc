@@ -77,7 +77,7 @@ def seed_db():
 
     venue2 = Venue(
         venue_name="cafe2",
-        address="112 Benjamin Way Bruce ACT 2617",
+        address="112 George St Sydney NSW 2000",
         city="Sydney",
         email="info@cafe2.com",
         abn="191191191",

@@ -15,16 +15,16 @@ def get_all_available_jobs():
     if request.query_string:
         job_list = db.session.query(Job, Venue) \
             .join(Venue, Job.venue_id == Venue.id) \
-            .filter(Job.pay_rate > request.args.get("min_rate", 0),
+            .filter(Job.pay_rate >= request.args.get("min_rate", 0),
                     Job.status == "To be fulfilled",
-                    Venue.city == request.args.get("location").capitalize()).all()[0] \
+                    Venue.city == request.args.get("location").capitalize()).all() \
             if request.args.get("location") else \
-            Job.query.filter(Job.pay_rate > request.args.get("min_rate", 0),
+            Job.query.filter(Job.pay_rate >= request.args.get("min_rate", 0),
                              Job.status == "To be fulfilled")
 
     else:
         job_list = Job.query.filter_by(status="To be fulfilled").all()
-    return jsonify(jobs_schema.dump(job_list))
+    return jsonify(jobs_schema.dump(job[0] for job in job_list))
 
 
 # get all available jobs of a venue
@@ -102,7 +102,7 @@ def update_job(job_id):
     if not str(job_venue.manager_id) == get_jwt_identity().replace("manager", ""):
         return abort(401, description="You don't have permission to update this job.")
 
-    job_fields = job_schema.load(request.json)
+    job_fields = job_schema.load(request.json, partial=True)
     job.description = job_fields.get("description", job.description)
     job.date = job_fields.get("date", job.date)
     job.start_time = job_fields.get("start_time", job.start_time)
@@ -129,7 +129,7 @@ def apply_job(job_id):
 
     db.session.add(application)
     db.session.commit()
-    return jsonify(application_schema.dump(application))
+    return jsonify(application_schema.dump(application)), 201
 
 
 # Approve applicant
@@ -208,4 +208,4 @@ def review_job(job_id):
 
     db.session.commit()
 
-    return jsonify(review_schema.dump(new_review))
+    return jsonify(review_schema.dump(new_review)), 201

@@ -22,6 +22,7 @@ def add_venue():
     new_venue = Venue(
         venue_name=venue_fields["venue_name"],
         address=venue_fields["address"],
+        city=venue_fields["city"],
         email=venue_fields["email"],
         abn=venue_fields["abn"],
         contact_number=venue_fields["contact_number"],
@@ -31,7 +32,7 @@ def add_venue():
     db.session.add(new_venue)
     db.session.commit()
 
-    return jsonify(venue_schema.dump(new_venue))
+    return jsonify(venue_schema.dump(new_venue)), 201
 
 
 # get venues associate with current manager id
@@ -58,7 +59,7 @@ def update_venue(venue_id):
     if str(venue.manager_id) != get_jwt_identity().replace("manager", ""):
         return abort(401, description="You do not have permission to update this venue.")
 
-    venue_fields = venue_schema.load(request.json)
+    venue_fields = venue_schema.load(request.json, partial=True)
 
     # Only update supplied fields
     venue.venue_name = venue_fields.get("venue_name", venue.venue_name)
