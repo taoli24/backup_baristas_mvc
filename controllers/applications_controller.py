@@ -23,7 +23,7 @@ def get_applications():
     return jsonify(applications_schema.dump(application[0] for application in jobs))
 
 
-# User view their applications
+# Barista view their applications
 @applications.route("/user")
 @jwt_required()
 @authenticate_role_only(role="user")

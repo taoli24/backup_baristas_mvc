@@ -1,7 +1,7 @@
 # Backup Baristas API
 
 ## The problem
-Finding emergency backup staff to cover shift vacancies due to sickness and emergency commitments is one of the many problems that is always faced by many hospitality businesses especially among cafés and restaurants. The situation has gotten after covid-19 pandemic due to lockdowns which force many skilled employee of hospitality leaving the industry. 
+Finding emergency backup staff to cover shift vacancies due to sickness and emergency commitments is one of the many problems that is always faced by many hospitality businesses especially among cafés and restaurants. The situation has gotten after covid-19 pandemic due to lockdowns which force many skilled employee of hospitality leaving the industry. There are lots of cafe business unable to operate due to shortage of staffs. 
 
 ## The purpose of this API
 * Help cafés find skilled workers to cover emergency shift vacancy
@@ -19,7 +19,7 @@ The chosen DBMS for this API is PostgreSQL.
 * Relatively slower access speed compare to some other DBMS
 
 ## Key functionality and benefits of ORM
-Object-relational mapper or ORM creates an abstract oop layer between the database and the programming language we are using. When we query the database, instead writing the more complex SQL we can write queried in the way of object-oriented paradigm which we are familiar with in the programming language we chose. This will speed up the development time of a project.
+Object-relational mapper or ORM creates an abstract oop layer between the database and the programming language we are using. When we query the database, instead writing the more complex SQL we can write queried in the way of object-oriented paradigm which we are familiar with in the programming language we chose. This makes writing queries easy and also speed up the development time of a project.
 
 ## ERD
 ![ERD](docs/backup_barista_api.jpeg)
@@ -83,6 +83,22 @@ zipp==3.8.1
 
 ## 3rd party services that this API will use in the future
 The API is currently still in development with all routes are connect to a local server. Upon completion, this API will be hosted on [heroku](https://www.heroku.com/) server.
+
+**Some other 3rd party services the API use might include:**<br><br>
+**Flask-Bcrypt** - provides encryption to sensitive data, such as password<br>
+**psycopg2** - allows connection between database and API<br>
+**flask-marshmallow** - allow object to be serialized into JSON format and load JSON file<br>
+**Flask-JWT-Extended** - create tokens allow user to perform operations on the API without sending username and password all the time
+
+
+## Project management and task allocation
+The API project is managed by using trello board, and tasks are divided into small easy to finish sections with a set deadline.
+
+[links to trello board](https://trello.com/b/rOr43E7A/backupbaristaapi)
+
+**Screenshot**
+![trello](docs/trello_board_ss.png)
+
 
 ## API documentations
 
